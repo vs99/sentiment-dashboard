@@ -8,7 +8,7 @@ export default function Controls() {
   const { filter, features, selectedCountry } = state;
 
   const countryOptions = Array.from(
-    new Set(features.map((f) => f.properties.countryCode))
+    new Set(features.map((f) => f.properties.country))
   ).sort();
 
   return (

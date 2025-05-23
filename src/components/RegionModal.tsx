@@ -28,7 +28,7 @@ export default function RegionModal() {
 
   // Gather points for the selected country
   const countryPts = features.filter(
-    (f) => f.properties.countryCode === selectedCountry
+    (f) => f.properties.country === selectedCountry
   );
   const total = countryPts.length;
 

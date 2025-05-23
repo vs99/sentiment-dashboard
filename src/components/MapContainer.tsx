@@ -31,7 +31,7 @@ export default function MapContainer() {
   useEffect(() => {
     if (selectedCountry) {
       const pts = features.filter(
-        (f) => f.properties.countryCode === selectedCountry
+        (f) => f.properties.country === selectedCountry
       );
       if (pts.length) {
         const lats = pts.map((f) => f.geometry.coordinates[1]);

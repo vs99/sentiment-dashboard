@@ -1,13 +1,15 @@
 // src/services/csvLoader.ts
 import Papa from 'papaparse';
+import countries from 'world-countries'; 
 
+// one row in your CSV
 export interface RawSentimentRow {
-  countryCode: string;
-  latitude: number;    // thanks to dynamicTyping
-  longitude: number;
-  sentiment: string;
+  Country: string;
+  Region: string;
+  RandomValue: number;
 }
 
+// the Feature shape Deck.gl wants
 export interface SentimentFeature {
   type: 'Feature';
   geometry: {
@@ -15,56 +17,72 @@ export interface SentimentFeature {
     coordinates: [number, number]; // [lng, lat]
   };
   properties: {
-    countryCode: string;
-    sentiment: 'positive' | 'neutral' | 'negative';
+    country: string;
+    region: string;
+    sentiment: 'negative' | 'neutral' | 'positive';
+    weight: number; // original RandomValue
   };
 }
 
 export async function loadSentimentCSV(): Promise<SentimentFeature[]> {
-  // Build the full URL, taking Vite's base path into account
+  // 1) build the absolute URL for your CSV
   const url = new URL(
     'geo_sentiments.csv',
     window.location.origin + import.meta.env.BASE_URL
   ).toString();
-  console.log('▶️ About to fetch CSV from:', url);
+  console.log('▶️ fetching CSV from:', url);
 
-  // Fetch the CSV, bypassing any cache
-  const response = await fetch(url, { cache: 'no-store' });
-  console.log(
-    '▶️ Fetch status:',
-    response.status,
-    'content-type:',
-    response.headers.get('content-type')
-  );
+  // 2) fetch & read
+  const resp = await fetch(url, { cache: 'no-store' });
+  if (!resp.ok) {
+    throw new Error(`Failed to fetch CSV: ${resp.status}`);
+  }
+  const text = await resp.text();
+  console.log('▶️ CSV header:', text.split('\n')[0]);
 
-  // Read it as text and log the first chunk
-  const text = await response.text();
-  console.log('▶️ First 100 chars of response:', text.slice(0, 100));
-
-  // Parse with PapaParse, forcing comma delimiter and dynamic typing
-  const result = Papa.parse<RawSentimentRow>(text, {
+  // 3) parse with PapaParse
+  const { data, errors } = Papa.parse<RawSentimentRow>(text, {
     header: true,
     skipEmptyLines: true,
-    delimiter: ',',
     dynamicTyping: true,
+    delimiter: ',', 
   });
-
-  if (result.errors.length) {
-    console.warn('⚠️ CSV parse warnings:', result.errors);
+  if (errors.length) {
+    console.warn('⚠️ CSV parse warnings:', errors);
   }
 
-  // Map rows into GeoJSON-style features
-  const features: SentimentFeature[] = result.data.map((row) => ({
-    type: 'Feature',
-    geometry: {
-      type: 'Point',
-      coordinates: [row.longitude, row.latitude],
-    },
-    properties: {
-      countryCode: row.countryCode,
-      sentiment: row.sentiment as 'positive' | 'neutral' | 'negative',
-    },
-  }));
+  // 4) map each row → Feature
+  const features: SentimentFeature[] = data.map((row) => {
+    // find the country object
+    const countryObj = countries.find(
+      (c) => c.name.common === row.Country.trim()
+    );
 
+    // extract [lng, lat] or fallback to [0,0]
+    let coords: [number, number] = [0, 0];
+    if (countryObj?.latlng?.length === 2) {
+      const [lat, lng] = countryObj.latlng;
+      coords = [lng, lat];
+    }
+
+    // map RandomValue → sentiment
+    let sentiment: SentimentFeature['properties']['sentiment'] =
+      row.RandomValue <= 0 ? 'negative' :
+      row.RandomValue >= 2 ? 'positive' :
+      'neutral';
+
+    return {
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: coords },
+      properties: {
+        country: row.Country,
+        region: row.Region,
+        sentiment,
+        weight: row.RandomValue,
+      },
+    };
+  });
+
+  console.log(`✅ Loaded ${features.length} features`);
   return features;
 }
