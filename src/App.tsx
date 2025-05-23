@@ -1,17 +1,13 @@
-// src/App.tsx
+// src/InnerApp.tsx
 import React from "react";
-import { ChakraProvider, Spinner, Center, Text } from "@chakra-ui/react";
+import { Center, Spinner, Text } from "@chakra-ui/react";
 import { useSentimentData } from "./hooks/useSentimentData";
-import {
-  SentimentProvider,
-  useSentimentContext,
-} from "./context/SentimentContext";
-import ErrorBoundary from "./components/ErrorBoundary";
+import { useSentimentContext } from "./context/SentimentContext";
 import Controls from "./components/Controls";
 import MapContainer from "./components/MapContainer";
 import Legend from "./components/Legend";
 
-function InnerApp() {
+export default function InnerApp() {
   const { data, loading, error } = useSentimentData();
   const { dispatch } = useSentimentContext();
 
@@ -44,17 +40,5 @@ function InnerApp() {
       <MapContainer />
       <Legend />
     </>
-  );
-}
-
-export default function App() {
-  return (
-    <ChakraProvider>
-      <SentimentProvider>
-        <ErrorBoundary>
-          <InnerApp />
-        </ErrorBoundary>
-      </SentimentProvider>
-    </ChakraProvider>
   );
 }

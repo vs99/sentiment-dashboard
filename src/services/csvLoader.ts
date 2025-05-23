@@ -1,11 +1,11 @@
-// src/services/csvLoader.ts
+
 import Papa from 'papaparse';
 
 export interface RawSentimentRow {
   countryCode: string;
-  latitude: string;   // as text in CSV
+  latitude: string;   
   longitude: string;
-  sentiment: string;  // e.g. "positive", "neutral", "negative"
+  sentiment: string;  
 }
 
 export interface SentimentFeature {
@@ -17,9 +17,6 @@ export interface SentimentFeature {
   };
 }
 
-/**
- * Fetches and parses the geo_sentiments.csv from public/
- */
 export async function loadSentimentCSV(): Promise<SentimentFeature[]> {
   const response = await fetch('/geo_sentiments.csv');
   const csvText = await response.text();

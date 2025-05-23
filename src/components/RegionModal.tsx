@@ -1,5 +1,7 @@
 // src/components/RegionModal.tsx
 import React from "react";
+
+// Modal primitives come from the modal package
 import {
   Modal,
   ModalOverlay,
@@ -7,9 +9,11 @@ import {
   ModalHeader,
   ModalCloseButton,
   ModalBody,
-  VStack,
-  Text,
-} from "@chakra-ui/react";
+} from "@chakra-ui/modal";
+
+// Layout & typography from core
+import { VStack, Text } from "@chakra-ui/react";
+
 import { useSentimentContext } from "../context/SentimentContext";
 
 export default function RegionModal() {
@@ -22,10 +26,13 @@ export default function RegionModal() {
 
   if (!isOpen || !selectedCountry) return null;
 
+  // Gather points for the selected country
   const countryPts = features.filter(
     (f) => f.properties.countryCode === selectedCountry
   );
   const total = countryPts.length;
+
+  // Count each sentiment
   const counts = countryPts.reduce(
     (acc, f) => {
       acc[f.properties.sentiment]++;
@@ -41,7 +48,8 @@ export default function RegionModal() {
         <ModalHeader>Sentiment Breakdown: {selectedCountry}</ModalHeader>
         <ModalCloseButton />
         <ModalBody pb={6}>
-          <VStack spacing={3} mb={4}>
+          {/* use gap instead of spacing */}
+          <VStack gap={3} mb={4}>
             {(["positive", "neutral", "negative"] as const).map((s) => (
               <Text key={s}>
                 {s.charAt(0).toUpperCase() + s.slice(1)}: {counts[s]} (
