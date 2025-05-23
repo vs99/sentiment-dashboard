@@ -1,8 +1,6 @@
 // src/components/Controls.tsx
 import React from "react";
-import { Box, Text, HStack } from "@chakra-ui/react";
-import { RadioGroup } from "@chakra-ui/react";
-import { Select } from "@chakra-ui/select";
+import { Box, Text, HStack, RadioGroup, Radio, Select } from "@chakra-ui/react";
 import { useSentimentContext } from "../context/SentimentContext";
 
 export default function Controls() {
@@ -12,13 +10,6 @@ export default function Controls() {
   const countryOptions = Array.from(
     new Set(features.map((f) => f.properties.countryCode))
   ).sort();
-
-  const options = [
-    { label: "All", value: "all" },
-    { label: "Positive", value: "positive" },
-    { label: "Neutral", value: "neutral" },
-    { label: "Negative", value: "negative" },
-  ] as const;
 
   return (
     <Box
@@ -34,32 +25,26 @@ export default function Controls() {
         Sentiment Filter
       </Text>
 
-      <RadioGroup.Root
-        value={filter}
-        onValueChange={({ value }) =>
-          dispatch({
-            type: "SET_FILTER",
-            payload: value as "all" | "positive" | "neutral" | "negative",
-          })
+      <RadioGroup
+        onChange={(val) =>
+          dispatch({ type: "SET_FILTER", payload: val as any })
         }
+        value={filter}
       >
-        <HStack gap={3}>
-          {options.map((opt) => (
-            <RadioGroup.Item key={opt.value} value={opt.value}>
-              <RadioGroup.ItemHiddenInput />
-              <RadioGroup.ItemIndicator />
-              <RadioGroup.ItemText>{opt.label}</RadioGroup.ItemText>
-            </RadioGroup.Item>
-          ))}
+        <HStack spacing={3}>
+          <Radio value="all">All</Radio>
+          <Radio value="positive">Positive</Radio>
+          <Radio value="neutral">Neutral</Radio>
+          <Radio value="negative">Negative</Radio>
         </HStack>
-      </RadioGroup.Root>
+      </RadioGroup>
 
       <Text fontWeight="bold" mb={2} mt={4}>
         Zoom to Country
       </Text>
       <Select
         placeholder="World"
-        value={selectedCountry ?? ""}
+        value={selectedCountry || ""}
         onChange={(e) =>
           dispatch({
             type: "SELECT_COUNTRY",

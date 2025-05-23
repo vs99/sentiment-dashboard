@@ -8,16 +8,19 @@ export function useSentimentData() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    console.log('▶️ useSentimentData: fetching CSV…');
     loadSentimentCSV()
       .then((features) => {
+        console.log(`✅ useSentimentData: parsed ${features.length} features`, features.slice(0,3));
         setData(features);
       })
       .catch((err) => {
-        console.error('Error loading sentiments:', err);
+        console.error('❌ useSentimentData: error loading CSV', err);
         setError(err instanceof Error ? err : new Error(String(err)));
       })
       .finally(() => {
         setLoading(false);
+        console.log('ℹ️ useSentimentData: loading complete');
       });
   }, []);
 

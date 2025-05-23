@@ -1,44 +1,22 @@
-// src/InnerApp.tsx
+// src/App.tsx
 import React from "react";
-import { Center, Spinner, Text } from "@chakra-ui/react";
-import { useSentimentData } from "./hooks/useSentimentData";
-import { useSentimentContext } from "./context/SentimentContext";
-import Controls from "./components/Controls";
-import MapContainer from "./components/MapContainer";
-import Legend from "./components/Legend";
+import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { SentimentProvider } from "./context/SentimentContext";
+import ErrorBoundary from "./components/ErrorBoundary";
+import InnerApp from "./InnerApp"; // your spinner→map/dashboard component
+import "./App.css";
 
-export default function InnerApp() {
-  const { data, loading, error } = useSentimentData();
-  const { dispatch } = useSentimentContext();
+// Create (or customize) your Chakra theme
+const theme = extendTheme();
 
-  React.useEffect(() => {
-    if (data) {
-      dispatch({ type: "SET_DATA", payload: data });
-    }
-  }, [data, dispatch]);
-
-  if (loading) {
-    return (
-      <Center h="100vh">
-        <Spinner size="xl" />
-      </Center>
-    );
-  }
-
-  if (error) {
-    return (
-      <Center h="100vh" flexDir="column">
-        <Text mb={4}>Failed to load sentiment data.</Text>
-        <Text color="red.500">{error.message}</Text>
-      </Center>
-    );
-  }
-
+export default function App() {
   return (
-    <>
-      <Controls />
-      <MapContainer />
-      <Legend />
-    </>
+    <ChakraProvider theme={theme}>
+      <SentimentProvider>
+        <ErrorBoundary>
+          <InnerApp />
+        </ErrorBoundary>
+      </SentimentProvider>
+    </ChakraProvider>
   );
 }

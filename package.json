@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@chakra-ui/modal": "^2.3.1",
-    "@chakra-ui/react": "^3.19.1",
+    "@chakra-ui/radio": "^2.1.2",
+    "@chakra-ui/react": "^2.10.9",
     "@chakra-ui/select": "^2.1.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
