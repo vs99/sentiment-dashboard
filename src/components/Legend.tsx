@@ -1,5 +1,4 @@
-// src/components/Legend.tsx
-import React from "react";
+// Legend.tsx
 import { Box, Flex, Text } from "@chakra-ui/react";
 
 export default function Legend() {
@@ -18,8 +17,8 @@ export default function Legend() {
         Negative
       </Text>
       <Box
-        flex="1"
-        h="8px"
+        width="200px"
+        height="8px"
         bgGradient="linear(to-r, red.500, yellow.300, green.500)"
       />
       <Text fontSize="sm" ml={2}>
