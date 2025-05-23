@@ -28,6 +28,7 @@ export default function MapContainer() {
     bearing: 0,
   });
 
+  // recenter when the selectedCountry (string) changes
   useEffect(() => {
     if (selectedCountry) {
       const pts = features.filter(
@@ -36,20 +37,17 @@ export default function MapContainer() {
       if (pts.length) {
         const lats = pts.map((f) => f.geometry.coordinates[1]);
         const lngs = pts.map((f) => f.geometry.coordinates[0]);
+        const latitude = lats.reduce((a, b) => a + b, 0) / lats.length;
+        const longitude = lngs.reduce((a, b) => a + b, 0) / lngs.length;
         setViewState((v) => ({
           ...v,
-          latitude: lats.reduce((a, b) => a + b, 0) / lats.length,
-          longitude: lngs.reduce((a, b) => a + b, 0) / lngs.length,
+          latitude,
+          longitude,
           zoom: 4,
         }));
       }
     } else {
-      setViewState((v) => ({
-        ...v,
-        latitude: 20,
-        longitude: 0,
-        zoom: 1,
-      }));
+      setViewState((v) => ({ ...v, latitude: 20, longitude: 0, zoom: 1 }));
     }
   }, [selectedCountry, features]);
 
@@ -63,14 +61,16 @@ export default function MapContainer() {
       }
       onClick={(info) => {
         if (info.layer?.id === "sentiment-heatmap" && info.object) {
+          // dispatch by f.properties.country
           dispatch({
             type: "SELECT_COUNTRY",
-            payload: info.object.properties.countryCode,
+            payload: info.object.properties.country,
           });
         }
       }}
+      style={{ width: "100%", height: "100%" }}
     >
-      <Map mapStyle={MAP_STYLE} reuseMaps={true} />
+      <Map mapStyle={MAP_STYLE} reuseMaps />
     </DeckGL>
   );
 }
